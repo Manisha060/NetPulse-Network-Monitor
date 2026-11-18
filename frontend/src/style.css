@@ -94,382 +94,186 @@
   border-bottom: 1px solid #edf0f5;
 }
 
-.current-state b {
-  display: block;
-  color: #30394d;
-  font-size: 12px;
-}
+/* Fix only Network Monitoring State Machine */
 
-.current-state small {
-  display: block;
-  color: #9aa2b2;
-  font-size: 10px;
-  margin-top: 4px;
-}
-
-@media(max-width: 700px) {
-  .automata-flow {
-    align-items: stretch;
-  }
-
-  .state-node {
-    min-width: 125px;
-  }
-}
-
-/* =========================
-   IMPROVED AUTOMATA DESIGN
-========================= */
-
-.nav {
-  width: 100%;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-}
-
-.nav:hover {
-  background: #202d48;
-  color: white;
-}
-
-.automata-panel {
-  overflow: hidden;
-}
-
-.automata-canvas {
-  width: 100%;
-  overflow-x: auto;
-  margin-top: 20px;
-  padding: 10px 0;
-}
-
-.automata-svg {
-  width: 100%;
-  min-width: 850px;
-  height: auto;
-  display: block;
-  background: #fbfcff;
-  border: 1px solid #edf0f6;
-  border-radius: 12px;
-}
-
-.automata-svg text {
-  font-family: 'DM Sans', sans-serif;
-}
-
-.automata-legend {
+.automata-panel .simple-automata {
   display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  padding: 18px 5px;
-  font-size: 11px;
-  color: #697388;
-}
-
-.automata-legend span {
-  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 7px;
+  justify-content: center;
+  gap: 12px;
+  padding: 25px 15px;
+  width: 100%;
 }
 
-.automata-legend i {
+.automata-panel .simple-state {
+  width: 260px;
+  min-height: 85px;
+  padding: 15px;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  background: white;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+}
+
+.automata-panel .simple-state b {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.automata-panel .simple-state small {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.automata-panel .simple-state.idle,
+.automata-panel .simple-state.stopped {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.automata-panel .simple-state.monitoring {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.automata-panel .simple-state.healthy {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.automata-panel .simple-state.degraded {
+  background: #fffbeb;
+  border-color: #fcd34d;
+}
+
+.automata-panel .simple-state.offline {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+/* State dots */
+
+.automata-panel .state-dot,
+.automata-panel .simple-legend i {
   width: 9px;
   height: 9px;
   display: inline-block;
   border-radius: 50%;
 }
 
-.legend-green {
-  background: #23a579;
-}
-
-.legend-orange {
-  background: #e99a4e;
-}
-
-.legend-red {
-  background: #dc6262;
-}
-
-.legend-blue {
-  background: #5576e9;
-}
-
-.legend-gray {
+.gray-dot {
   background: #8992a4;
 }
 
-.automata-note {
-  background: #f2f5ff;
-  border-radius: 9px;
-  padding: 15px;
-  color: #596baf;
-  font-size: 12px;
-  line-height: 1.8;
+.blue-dot {
+  background: #5576e9;
 }
 
-.automata-note b {
-  color: #394e9b;
+.green-dot {
+  background: #23a579;
 }
 
-.current-state {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 5px;
-  border-bottom: 1px solid #edf0f5;
+.orange-dot {
+  background: #e99a4e;
 }
 
-.current-state b {
-  display: block;
-  color: #30394d;
-  font-size: 12px;
+.red-dot {
+  background: #dc6262;
 }
 
-.current-state small {
-  display: block;
-  color: #9aa2b2;
-  font-size: 10px;
-  margin-top: 4px;
-}
+/* Arrows and events */
 
-.quick-panel {
-  margin-bottom: 18px;
-}
-
-.quick-panel .primary {
-  max-width: 270px;
-}
-
-@media(max-width: 700px) {
-  .automata-svg {
-    min-width: 850px;
-  }
-
-  .automata-legend {
-    gap: 12px;
-  }
-}
-
-/* SIMPLE AUTOMATA DESIGN */
-
-.simple-automata {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px 15px;
-  gap: 12px;
-  background: #fbfcff;
-  border: 1px solid #edf0f6;
-  border-radius: 12px;
-  margin-top: 15px;
-}
-
-.simple-state {
-  width: 210px;
-  min-height: 115px;
-  padding: 15px;
-  box-sizing: border-box;
-  border: 2px solid;
-  border-radius: 12px;
-  background: white;
+.automata-panel .simple-arrow {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  text-align: center;
-  transition: transform 0.2s ease;
-}
-
-.simple-state:hover {
-  transform: translateY(-2px);
-}
-
-.simple-state b {
-  font-size: 14px;
-  color: #26334c;
-}
-
-.simple-state small {
-  font-size: 11px;
-  color: #8992a4;
-  line-height: 1.5;
-}
-
-.state-dot {
-  height: 11px;
-  width: 11px;
-  border-radius: 50%;
-}
-
-.gray-dot { background: #8992a4; }
-.blue-dot { background: #5576e9; }
-.green-dot { background: #23a579; }
-.orange-dot { background: #e99a4e; }
-.red-dot { background: #dc6262; }
-
-.idle,
-.stopped {
-  border-color: #8992a4;
-}
-
-.monitoring {
-  border-color: #5576e9;
-  background: #f6f8ff;
-}
-
-.healthy {
-  border-color: #23a579;
-  background: #f2fbf7;
-}
-
-.degraded {
-  border-color: #e99a4e;
-  background: #fff9f1;
-}
-
-.offline {
-  border-color: #dc6262;
-  background: #fff5f5;
-}
-
-.simple-arrow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 3px;
-  color: #71809b;
+  color: #64748b;
 }
 
-.simple-arrow span {
-  font-size: 27px;
+.automata-panel .simple-arrow span {
+  font-size: 25px;
   line-height: 1;
 }
 
-.simple-arrow small {
-  font-size: 10px;
+.automata-panel .simple-arrow small {
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.7px;
+  color: #536ff0;
 }
 
-.simple-results {
+/* Three probe result states */
+
+.automata-panel .simple-results {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
   width: 100%;
-  max-width: 750px;
-  gap: 16px;
-  align-items: stretch;
+  max-width: 850px;
 }
 
-.simple-results .simple-state {
+.automata-panel .simple-results .simple-state {
   width: 100%;
-  min-width: 0;
+  min-height: 125px;
 }
 
-.result-label {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 20px;
-}
-
-.green-label {
-  color: #16845f;
-  background: #e1f5ec;
-}
-
-.orange-label {
-  color: #bd762b;
-  background: #fff0db;
-}
-
-.red-label {
-  color: #c54d4d;
-  background: #ffe5e5;
-}
-
-.simple-legend {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  padding: 20px 5px;
+.automata-panel .result-label {
   font-size: 11px;
-  color: #697388;
+  font-weight: 600;
+  margin-top: 3px;
 }
 
-.simple-legend span {
+.automata-panel .green-label {
+  color: #15803d;
+}
+
+.automata-panel .orange-label {
+  color: #b45309;
+}
+
+.automata-panel .red-label {
+  color: #b91c1c;
+}
+
+/* Legend */
+
+.automata-panel .simple-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.automata-panel .simple-legend span {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
 }
 
-.simple-legend i {
-  height: 9px;
-  width: 9px;
-  display: inline-block;
-  border-radius: 50%;
-}
+/* Mobile */
 
-.automata-note {
-  margin-top: 10px;
-  padding: 15px;
-  border-radius: 9px;
-  background: #f2f5ff;
-  color: #596baf;
-  font-size: 12px;
-  line-height: 1.8;
-}
-
-.automata-note b {
-  color: #394e9b;
-}
-
-.automata-note p {
-  margin: 5px 0 0;
-}
-
-.current-state {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 5px;
-  border-bottom: 1px solid #edf0f5;
-}
-
-.current-state b {
-  display: block;
-  color: #30394d;
-  font-size: 12px;
-}
-
-.current-state small {
-  display: block;
-  color: #9aa2b2;
-  font-size: 10px;
-  margin-top: 5px;
-}
-
-@media(max-width: 700px) {
-  .simple-results {
+@media (max-width: 650px) {
+  .automata-panel .simple-results {
     grid-template-columns: 1fr;
-    max-width: 240px;
   }
 
-  .simple-state {
-    width: 190px;
+  .automata-panel .simple-state {
+    max-width: 260px;
   }
 
-  .simple-legend {
-    gap: 12px;
-  }
-
-  .current-state {
-    flex-wrap: wrap;
+  .automata-panel .simple-legend {
+    gap: 10px;
   }
 }

@@ -3,55 +3,32 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 
 import {
-  Activity,
-  Wifi,
-  Clock,
-  Plus,
-  Play,
-  Square,
-  Trash2,
-  RefreshCw,
-  Globe,
-  ArrowDownUp,
-  LayoutDashboard,
-  Server,
-  GitBranch
+  Activity, Wifi, Clock, Plus, Play, Square,
+  Trash2, RefreshCw, Globe, ArrowDownUp,
+  LayoutDashboard, Server, GitBranch
 } from 'lucide-react';
 
 import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid
+  ResponsiveContainer, AreaChart, Area,
+  XAxis, YAxis, Tooltip, CartesianGrid
 } from 'recharts';
 
 import './style.css';
 
-const API =
-  import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API = import.meta.env.VITE_API_URL ||
+  'http://localhost:5000/api';
 
 const fmt = value =>
   value == null ? '—' : `${Number(value).toFixed(1)} ms`;
 
-/* =========================
-   MAIN APPLICATION
-========================= */
-
 function App() {
   const [targets, setTargets] = useState([]);
-
   const [name, setName] = useState('Google DNS');
   const [host, setHost] = useState('8.8.8.8');
-
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [db, setDb] = useState('checking');
   const [now, setNow] = useState(new Date());
-
   const [activePage, setActivePage] = useState('overview');
 
   const load = async () => {
@@ -64,10 +41,9 @@ function App() {
 
       setTargets(targetResponse.data);
       setDb(healthResponse.data.database);
+      setError('');
     } catch (err) {
-      setError(
-        'Backend not reachable. Start the backend server.'
-      );
+      setError('Backend not reachable. Start the backend server.');
     }
   };
 
@@ -82,46 +58,37 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
+  // ADD TARGET
   const add = async e => {
     e.preventDefault();
-
     setError('');
     setLoading(true);
 
     try {
-      await axios.post(`${API}/targets`, {
-        name,
-        host
-      });
-
+      await axios.post(`${API}/targets`, { name, host });
       setName('');
       setHost('');
-
       await load();
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-        'Unable to add target'
+        err.response?.data?.message || 'Unable to add target'
       );
     } finally {
       setLoading(false);
     }
   };
 
+  // START / STOP
   const action = async (id, type) => {
     try {
-      await axios.post(
-        `${API}/targets/${id}/${type}`
-      );
-
+      await axios.post(`${API}/targets/${id}/${type}`);
       await load();
     } catch (err) {
-      setError(
-        err.response?.data?.message || 'Action failed'
-      );
+      setError(err.response?.data?.message || 'Action failed');
     }
   };
 
+  // DELETE
   const remove = async id => {
     try {
       await axios.delete(`${API}/targets/${id}`);
@@ -131,6 +98,7 @@ function App() {
     }
   };
 
+  // MANUAL PROBE
   const probe = async id => {
     try {
       await axios.post(`${API}/targets/${id}/probe`);
@@ -141,13 +109,8 @@ function App() {
   };
 
   const stats = useMemo(() => {
-    const sent = targets.reduce(
-      (a, t) => a + (t.sent || 0), 0
-    );
-
-    const lost = targets.reduce(
-      (a, t) => a + (t.lost || 0), 0
-    );
+    const sent = targets.reduce((a, t) => a + (t.sent || 0), 0);
+    const lost = targets.reduce((a, t) => a + (t.lost || 0), 0);
 
     const values = targets
       .map(t => t.lastLatency)
@@ -156,16 +119,10 @@ function App() {
     return {
       sent,
       lost,
-
-      loss: sent
-        ? (lost / sent) * 100
-        : 0,
-
+      loss: sent ? (lost / sent) * 100 : 0,
       lat: values.length
-        ? values.reduce((a, b) => a + b, 0) /
-          values.length
+        ? values.reduce((a, b) => a + b, 0) / values.length
         : 0,
-
       online: targets.filter(t =>
         ['HEALTHY', 'DEGRADED'].includes(t.status)
       ).length
@@ -194,28 +151,21 @@ function App() {
 
   return (
     <div className="app">
-
       <aside className="sidebar">
-
         <div className="brand">
           <div className="brand-icon">
             <Activity size={22} />
           </div>
-
           <div>
             <b>NetPulse</b>
             <small>NETWORK INTELLIGENCE</small>
           </div>
         </div>
 
-        <div className="side-label">
-          WORKSPACE
-        </div>
+        <div className="side-label">WORKSPACE</div>
 
         <button
-          className={`nav ${
-            activePage === 'overview' ? 'active' : ''
-          }`}
+          className={`nav ${activePage === 'overview' ? 'active' : ''}`}
           onClick={() => nav('overview')}
         >
           <LayoutDashboard size={18} />
@@ -223,9 +173,7 @@ function App() {
         </button>
 
         <button
-          className={`nav ${
-            activePage === 'hosts' ? 'active' : ''
-          }`}
+          className={`nav ${activePage === 'hosts' ? 'active' : ''}`}
           onClick={() => nav('hosts')}
         >
           <Server size={18} />
@@ -233,9 +181,7 @@ function App() {
         </button>
 
         <button
-          className={`nav ${
-            activePage === 'automata' ? 'active' : ''
-          }`}
+          className={`nav ${activePage === 'automata' ? 'active' : ''}`}
           onClick={() => nav('automata')}
         >
           <GitBranch size={18} />
@@ -247,11 +193,9 @@ function App() {
           Monitoring engine
           <span>v1.0</span>
         </div>
-
       </aside>
 
       <main className="main">
-
         <header>
           <div>
             <div className="eyebrow">
@@ -259,49 +203,37 @@ function App() {
             </div>
 
             <h1>
-              {activePage === 'overview' &&
-                'Packet Loss & Latency'}
-
-              {activePage === 'hosts' &&
-                'Host Monitors'}
-
-              {activePage === 'automata' &&
-                'Automata Status'}
+              {activePage === 'overview' && 'Packet Loss & Latency'}
+              {activePage === 'hosts' && 'Host Monitors'}
+              {activePage === 'automata' && 'Automata Status'}
             </h1>
 
             <p className="sub">
               {activePage === 'overview' &&
                 'Monitor network health, response times and packet delivery.'}
-
               {activePage === 'hosts' &&
                 'Manage and monitor your network endpoints.'}
-
               {activePage === 'automata' &&
                 'Network monitoring state transition system.'}
             </p>
           </div>
 
           <div className="header-right">
-
             <span className="db-pill">
-              <i />
-              DB {db}
+              <i /> DB {db}
             </span>
 
             <button className="refresh" onClick={load}>
               <RefreshCw size={16} />
               Refresh
             </button>
-
           </div>
         </header>
 
         {error && (
           <div className="error">
             {error}
-            <button onClick={() => setError('')}>
-              ×
-            </button>
+            <button onClick={() => setError('')}>×</button>
           </div>
         )}
 
@@ -335,57 +267,31 @@ function App() {
         )}
 
         <footer>
-          <span>
-            NETPULSE · NETWORK MONITORING DASHBOARD
-          </span>
-
-          <span>
-            Last refreshed {now.toLocaleTimeString()}
-          </span>
+          <span>NETPULSE · NETWORK MONITORING DASHBOARD</span>
+          <span>Last refreshed {now.toLocaleTimeString()}</span>
         </footer>
-
       </main>
     </div>
   );
 }
 
-/* =========================
-   STATISTICS COMPONENT
-========================= */
-
 function Stat({ icon, label, value, note, tone }) {
   return (
     <div className="stat">
-
-      <div className={`stat-icon ${tone}`}>
-        {icon}
-      </div>
-
+      <div className={`stat-icon ${tone}`}>{icon}</div>
       <div>
         <label>{label}</label>
         <strong>{value}</strong>
         <small>{note}</small>
       </div>
-
     </div>
   );
 }
 
-/* =========================
-   OVERVIEW PAGE
-========================= */
-
-function Overview({
-  targets,
-  stats,
-  history,
-  onHosts
-}) {
+function Overview({ targets, stats, history, onHosts }) {
   return (
     <>
-
       <section className="stats">
-
         <Stat
           icon={<Globe />}
           label="MONITORED TARGETS"
@@ -417,11 +323,9 @@ function Overview({
           note="Total probe attempts"
           tone="green"
         />
-
       </section>
 
       <section className="panel chart-panel">
-
         <div className="panel-head">
           <div>
             <h2>Latency Overview</h2>
@@ -430,15 +334,9 @@ function Overview({
         </div>
 
         <div className="chart">
-
           {history.length > 0 ? (
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
+            <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={history}>
-
                 <defs>
                   <linearGradient
                     id="latencyFill"
@@ -447,34 +345,14 @@ function Overview({
                     x2="0"
                     y2="1"
                   >
-                    <stop
-                      offset="0%"
-                      stopColor="#6488f5"
-                      stopOpacity={0.3}
-                    />
-
-                    <stop
-                      offset="100%"
-                      stopColor="#6488f5"
-                      stopOpacity={0}
-                    />
+                    <stop offset="0%" stopColor="#6488f5" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#6488f5" stopOpacity={0} />
                   </linearGradient>
                 </defs>
 
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#edf0f6"
-                />
-
-                <XAxis
-                  dataKey="time"
-                  tick={{ fontSize: 11 }}
-                />
-
-                <YAxis
-                  tick={{ fontSize: 11 }}
-                />
-
+                <CartesianGrid strokeDasharray="3 3" stroke="#edf0f6" />
+                <XAxis dataKey="time" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip />
 
                 <Area
@@ -485,51 +363,30 @@ function Overview({
                   fill="url(#latencyFill)"
                   connectNulls
                 />
-
               </AreaChart>
             </ResponsiveContainer>
-
           ) : (
-
             <div className="empty-chart">
               <Activity size={30} />
               <b>Waiting for probe data</b>
-              <span>
-                Start a target to see latency trends.
-              </span>
+              <span>Start a target to see latency trends.</span>
             </div>
-
           )}
-
         </div>
-
       </section>
 
       <section className="panel quick-panel">
-
         <h2>Network Endpoints</h2>
+        <p>{targets.length} configured targets</p>
 
-        <p>
-          {targets.length} configured targets
-        </p>
-
-        <button
-          className="primary"
-          onClick={onHosts}
-        >
+        <button className="primary" onClick={onHosts}>
           <Server size={17} />
           Manage Host Monitors
         </button>
-
       </section>
-
     </>
   );
 }
-
-/* =========================
-   HOST MONITORS PAGE
-========================= */
 
 function HostPage({
   targets,
@@ -546,26 +403,17 @@ function HostPage({
 }) {
   return (
     <>
-
       <section className="panel add-panel">
-
         <div className="panel-head">
-
           <div>
             <h2>Add Network Target</h2>
-            <p>
-              Enter a hostname or IP address to monitor.
-            </p>
+            <p>Enter a hostname or IP address to monitor.</p>
           </div>
-
           <Plus />
-
         </div>
 
         <form onSubmit={add}>
-
           <label>DISPLAY NAME</label>
-
           <input
             value={name}
             onChange={e => setName(e.target.value)}
@@ -574,7 +422,6 @@ function HostPage({
           />
 
           <label>HOSTNAME / IP ADDRESS</label>
-
           <input
             value={host}
             onChange={e => setHost(e.target.value)}
@@ -582,53 +429,35 @@ function HostPage({
             required
           />
 
-          <button
-            className="primary"
-            disabled={loading}
-          >
+          <button className="primary" disabled={loading}>
             <Plus size={17} />
             {loading ? 'Adding...' : 'Add Target'}
           </button>
-
         </form>
 
         <div className="hint">
           Only monitor hosts you own or have permission to test.
         </div>
-
       </section>
 
       <section className="panel targets-panel">
-
         <div className="panel-head">
-
           <div>
             <h2>All Monitored Hosts</h2>
-            <p>
-              Start, stop, test or remove endpoints.
-            </p>
+            <p>Start, stop, test or remove endpoints.</p>
           </div>
-
-          <span className="count">
-            {targets.length} TARGETS
-          </span>
-
+          <span className="count">{targets.length} TARGETS</span>
         </div>
 
         {targets.length === 0 ? (
-
           <div className="empty">
             <Globe size={30} />
             <b>No targets configured</b>
             <span>Add a host to start monitoring.</span>
           </div>
-
         ) : (
-
           <div className="table-wrap">
-
             <table>
-
               <thead>
                 <tr>
                   <th>ENDPOINT</th>
@@ -641,38 +470,28 @@ function HostPage({
               </thead>
 
               <tbody>
-
                 {targets.map(t => (
-
                   <tr key={t._id}>
-
                     <td>
                       <div className="endpoint">
-
                         <div className="host-icon">
                           <Globe size={17} />
                         </div>
-
                         <div>
                           <b>{t.name}</b>
                           <small>{t.host}</small>
                         </div>
-
                       </div>
                     </td>
 
                     <td>
-                      <span
-                        className={`status ${statusClass(t.status)}`}
-                      >
+                      <span className={`status ${statusClass(t.status)}`}>
                         <i />
-                        {t.status}
+                        {t.status || 'IDLE'}
                       </span>
                     </td>
 
-                    <td className="latency">
-                      {fmt(t.lastLatency)}
-                    </td>
+                    <td className="latency">{fmt(t.lastLatency)}</td>
 
                     <td>
                       {t.sent
@@ -680,40 +499,29 @@ function HostPage({
                         : '0.0%'}
                     </td>
 
-                    <td>
-                      {t.received || 0} / {t.sent || 0}
-                    </td>
+                    <td>{t.received || 0} / {t.sent || 0}</td>
 
                     <td>
                       <div className="actions">
-
                         {[
                           'MONITORING',
                           'HEALTHY',
                           'DEGRADED',
                           'OFFLINE'
                         ].includes(t.status) ? (
-
                           <button
                             title="Stop monitoring"
-                            onClick={() =>
-                              action(t._id, 'stop')
-                            }
+                            onClick={() => action(t._id, 'stop')}
                           >
                             <Square size={15} />
                           </button>
-
                         ) : (
-
                           <button
                             title="Start monitoring"
-                            onClick={() =>
-                              action(t._id, 'start')
-                            }
+                            onClick={() => action(t._id, 'start')}
                           >
                             <Play size={15} />
                           </button>
-
                         )}
 
                         <button
@@ -730,54 +538,35 @@ function HostPage({
                         >
                           <Trash2 size={15} />
                         </button>
-
                       </div>
                     </td>
-
                   </tr>
-
                 ))}
-
               </tbody>
-
             </table>
-
           </div>
-
         )}
-
       </section>
-
     </>
   );
 }
 
-/* =========================
-   AUTOMATA STATUS PAGE
-========================= */
-
 function AutomataPage({ targets }) {
-
   const transitions = [
     ['IDLE', 'START', 'MONITORING', 'Begin periodic ping'],
     ['STOPPED', 'START', 'MONITORING', 'Resume monitoring'],
-
     ['MONITORING', 'PROBE_OK_FAST', 'HEALTHY', 'Latency <= 100 ms'],
     ['MONITORING', 'PROBE_OK_SLOW', 'DEGRADED', 'Latency > 100 ms'],
     ['MONITORING', 'PROBE_FAIL', 'OFFLINE', 'Probe timeout'],
-
     ['HEALTHY', 'PROBE_OK_FAST', 'HEALTHY', 'Update metrics'],
     ['HEALTHY', 'PROBE_OK_SLOW', 'DEGRADED', 'Raise latency warning'],
     ['HEALTHY', 'PROBE_FAIL', 'OFFLINE', 'Mark unreachable'],
-
     ['DEGRADED', 'PROBE_OK_FAST', 'HEALTHY', 'Clear warning'],
     ['DEGRADED', 'PROBE_OK_SLOW', 'DEGRADED', 'Keep warning'],
     ['DEGRADED', 'PROBE_FAIL', 'OFFLINE', 'Mark unreachable'],
-
     ['OFFLINE', 'PROBE_OK_FAST', 'HEALTHY', 'Reachable again'],
     ['OFFLINE', 'PROBE_OK_SLOW', 'DEGRADED', 'Reachable with warning'],
     ['OFFLINE', 'PROBE_FAIL', 'OFFLINE', 'Remain offline'],
-
     [
       'MONITORING / HEALTHY / DEGRADED / OFFLINE',
       'STOP',
@@ -786,24 +575,31 @@ function AutomataPage({ targets }) {
     ]
   ];
 
+  const getColor = status => {
+    const colors = {
+      HEALTHY: '#23a579',
+      DEGRADED: '#e99a4e',
+      OFFLINE: '#dc6262',
+      MONITORING: '#5576e9',
+      STOPPED: '#8992a4',
+      IDLE: '#8992a4'
+    };
+
+    return colors[status] || '#8992a4';
+  };
+
   return (
     <>
-
-      {/* SIMPLE STATE TRANSITION DIAGRAM */}
-
       <section className="panel automata-panel">
-
         <div className="panel-head">
           <div>
             <h2>Network Monitoring State Machine</h2>
             <p>Simple State Transition Diagram</p>
           </div>
-
           <GitBranch color="#536ff0" size={22} />
         </div>
 
         <div className="simple-automata">
-
           <div className="simple-state idle">
             <span className="state-dot gray-dot" />
             <b>IDLE</b>
@@ -827,7 +623,6 @@ function AutomataPage({ targets }) {
           </div>
 
           <div className="simple-results">
-
             <div className="simple-state healthy">
               <span className="state-dot green-dot" />
               <b>HEALTHY</b>
@@ -854,7 +649,6 @@ function AutomataPage({ targets }) {
                 No response
               </span>
             </div>
-
           </div>
 
           <div className="simple-arrow">
@@ -867,7 +661,6 @@ function AutomataPage({ targets }) {
             <b>STOPPED</b>
             <small>Monitoring stopped by user</small>
           </div>
-
         </div>
 
         <div className="simple-legend">
@@ -887,28 +680,23 @@ function AutomataPage({ targets }) {
             active monitoring state to STOPPED. START resumes monitoring.
           </p>
         </div>
-
       </section>
 
-      {/* STATE TRANSITION TABLE */}
+      {/* STATIC TRANSITION RULES */}
 
       <section className="panel">
-
         <div className="panel-head">
           <div>
-            <h2>State Transition Table</h2>
-            <p>Current state, input event and next state</p>
+            <h2>State Transition Rules</h2>
+            <p>Defined input events and expected next states</p>
           </div>
-
           <span className="count">
-            {transitions.length} TRANSITIONS
+            {transitions.length} RULES
           </span>
         </div>
 
         <div className="table-wrap">
-
           <table>
-
             <thead>
               <tr>
                 <th>CURRENT STATE</th>
@@ -919,34 +707,33 @@ function AutomataPage({ targets }) {
             </thead>
 
             <tbody>
-              {transitions.map((transition, index) => (
+              {transitions.map((item, index) => (
                 <tr key={index}>
-                  <td><b>{transition[0]}</b></td>
-                  <td>{transition[1]}</td>
+                  <td><b>{item[0]}</b></td>
+                  <td>{item[1]}</td>
                   <td>
-                    <span className={`status ${transition[2].toLowerCase()}`}>
-                      {transition[2]}
+                    <span
+                      className={`status ${item[2].toLowerCase()}`}
+                    >
+                      <i />
+                      {item[2]}
                     </span>
                   </td>
-                  <td>{transition[3]}</td>
+                  <td>{item[3]}</td>
                 </tr>
               ))}
             </tbody>
-
           </table>
-
         </div>
-
       </section>
 
-      {/* CURRENT TARGET STATES */}
+      {/* LIVE CURRENT STATE TABLE */}
 
       <section className="panel">
-
         <div className="panel-head">
           <div>
-            <h2>Current Target States</h2>
-            <p>Live state of configured monitoring endpoints</p>
+            <h2>Live State Transition Table</h2>
+            <p>Actual current status received from backend</p>
           </div>
 
           <span className="count">
@@ -955,38 +742,79 @@ function AutomataPage({ targets }) {
         </div>
 
         {targets.length === 0 ? (
-
           <div className="empty">
             No targets available. Add a host to start monitoring.
           </div>
-
         ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>HOST</th>
+                  <th>CURRENT STATE</th>
+                  <th>INPUT / EVENT</th>
+                  <th>NEXT STATE</th>
+                  <th>LATENCY</th>
+                </tr>
+              </thead>
 
-          targets.map(target => (
-            <div
-              className="current-state"
-              key={target._id}
-            >
-              <div>
-                <b>{target.name}</b>
-                <small>{target.host}</small>
-              </div>
+              <tbody>
+                {targets.map(target => {
+                  const state = (
+                    target.status || 'IDLE'
+                  ).toUpperCase();
 
-              <span
-                className={`status ${
-                  target.status?.toLowerCase() || 'idle'
-                }`}
-              >
-                <i />
-                {target.status || 'IDLE'}
-              </span>
-            </div>
-          ))
+                  const event = {
+                    HEALTHY: 'PROBE_SUCCESS',
+                    DEGRADED: 'SLOW_RESPONSE',
+                    OFFLINE: 'PROBE_FAILED',
+                    MONITORING: 'START',
+                    STOPPED: 'STOP',
+                    IDLE: 'WAITING'
+                  }[state] || 'STATUS_UPDATE';
 
+                  return (
+                    <tr key={target._id}>
+                      <td>
+                        <b>{target.name}</b>
+                        <br />
+                        <small>{target.host}</small>
+                      </td>
+
+                      <td>
+                        <span
+                          className="status"
+                          style={{ color: getColor(state) }}
+                        >
+                          <i
+                            style={{
+                              backgroundColor: getColor(state)
+                            }}
+                          />
+                          {state}
+                        </span>
+                      </td>
+
+                      <td>{event}</td>
+
+                      <td>
+                        <span
+                          className="status"
+                          style={{ color: getColor(state) }}
+                        >
+                          {state}
+                        </span>
+                      </td>
+
+                      <td>{fmt(target.lastLatency)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
-
       </section>
-
     </>
   );
 }

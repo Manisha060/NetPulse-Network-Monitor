@@ -1,20 +1,94 @@
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
-const execFileAsync = promisify(execFile);
+
+import net from 'node:net';
+
+const TIMEOUT_MS = 4000;
+
+// HTTP / HTTPS probe
+async function httpProbe(host) {
+  const url = host.startsWith('http://') || host.startsWith('https://')
+    ? host
+    : `https://${host}`;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const start = Date.now();
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      signal: controller.signal,
+      redirect: 'follow'
+    });
+
+    const latency = Date.now() - start;
+
+    return {
+      success: response.status >= 200 && response.status < 500,
+      latency,
+      output: `HTTP ${response.status}`
+    };
+  } catch (error) {
+    return {
+      success: false,
+      latency: null,
+      output: error.message.slice(0, 300)
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// TCP probe for IP addresses / hostnames
+function tcpProbe(host, port = 443) {
+  return new Promise(resolve => {
+    const start = Date.now();
+    const socket = new net.Socket();
+
+    const finish = result => {
+      socket.destroy();
+      resolve(result);
+    };
+
+    socket.setTimeout(TIMEOUT_MS);
+
+    socket.connect(port, host, () => {
+      finish({
+        success: true,
+        latency: Date.now() - start,
+        output: `TCP port ${port} connected`
+      });
+    });
+
+    socket.on('timeout', () => {
+      finish({
+        success: false,
+        latency: null,
+        output: 'Connection timeout'
+      });
+    });
+
+    socket.on('error', error => {
+      finish({
+        success: false,
+        latency: null,
+        output: error.message.slice(0, 300)
+      });
+    });
+  });
+}
 
 export async function pingHost(host) {
-  const isWin = process.platform === 'win32';
-  const args = isWin ? ['-n','1','-w','2500',host] : ['-c','1','-W','2',host];
-  try {
-    const { stdout } = await execFileAsync('ping', args, { timeout: 4000, windowsHide: true });
-    const patterns = [
-      /time[=<]([0-9.]+)\s*ms/i,
-      /time[=<]\s*([0-9.]+)\s*ms/i
-    ];
-    let latency = null;
-    for (const re of patterns) { const m = stdout.match(re); if (m) { latency = Number(m[1]); break; } }
-    return { success: true, latency: latency ?? 1, output: stdout.slice(-500) };
-  } catch (error) {
-    return { success: false, latency: null, output: String(error.message).slice(0,300) };
+  // URL targets use HTTP/HTTPS
+  if (host.startsWith('http://') || host.startsWith('https://')) {
+    return httpProbe(host);
   }
+
+  // Hostnames use HTTPS; if it fails, try TCP
+  const httpResult = await httpProbe(host);
+
+  if (httpResult.success) {
+    return httpResult;
+  }
+
+  return tcpProbe(host, 443);
 }
